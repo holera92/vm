@@ -3,7 +3,7 @@
 #include <fstream>
 
 
-void mem_read(uint16_t);
+uint16_t mem_read(uint16_t);
 void read_image_file(FILE* file);
 uint16_t swap16();
 void abort();
@@ -93,7 +93,7 @@ void mem_write(uint16_t address, uint16_t value)
 	memory[address] = value;
 }
 
-void mem_read(uint16_t address)
+uint16_t mem_read(uint16_t address)
 {
 	if (address = MR_KBSR)
 	{
@@ -153,21 +153,21 @@ int main()
 		switch (opcode)
 		{
 		case OP_ADD:
-			uint16_t destination_register = (instr >> 9) & 0x7;
+			uint16_t DR = (instr >> 9) & 0x7;
 			uint16_t source_register = (instr >> 6) & 0x7;
 			uint16_t immediate_flag = (instr >> 5) & 0x1;
 			if (immediate_flag)
 			{
 				uint16_t lit = sign_extend(instr & 0x1F, 5);
-				registers[destination_register] = source_register + lit;
+				registers[DR] = source_register + lit;
 			}
 			else
 			{
 				uint16_t source2_register = instr & 0x7;
-				registers[destination_register] = registers[source_register] + registers[source2_register];
+				registers[DR] = registers[source_register] + registers[source2_register];
 			}
 
-			update_flag(destination_register);
+			update_flag(DR);
 		break;
 		case OP_AND:
 			uint16_t DR = (instr >> 9) & 0x7;
@@ -216,16 +216,16 @@ int main()
 			}
 		break;
 		case OP_LD:
-			uint16_t destination_register = (instr >> 9) & 0x7;
+			uint16_t DR = (instr >> 9) & 0x7;
 			uint16_t pc_offset = sign_extend(instr & 0x1FF, 9);
-			registers[destination_register] = mem_read(registers[R_PC] + pc_offset);
-			update_flag(destination_register);
+			registers[DR] = mem_read(registers[R_PC] + pc_offset);
+			update_flag(DR);
 		break;
 		case OP_LDR:
-			uint16_t destination_register = (instr >> 9) & 0x7;
+			uint16_t DR = (instr >> 9) & 0x7;
 			uint16_t pc_offset = sign_extend(instr & 0x1FF, 9);
-			registers[destination_register] = mem_read(mem_read(registers[R_PC] + pc_offset));
-			update_flag(destination_register);
+			registers[DR] = mem_read(mem_read(registers[R_PC] + pc_offset));
+			update_flag(DR);
 		break;
 		case OP_LEA:
 		//{LEA, 7}
